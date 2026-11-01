@@ -1,26 +1,348 @@
 @import "tailwindcss";
 
+/* -----------------------------------------------
+   Design tokens — from DESIGN.md
+   One accent per section, cream base, ink borders.
+----------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-cream: #f6e1c6;
+  --color-ink: #111111;
+  --color-orange: #f36b21;
+  --color-pink: #ff93ad;
+  --color-teal: #65a998;
+  --color-yellow: #ffc64a;
+  --color-blue: #95b5e8;
+  --color-cyan: #43b7bc;
+  --color-white: #ffffff;
+
+  /* Section-mapped accent variables */
+  --section-hero: var(--color-orange);
+  --section-projects: var(--color-pink);
+  --section-about: var(--color-teal);
+  --section-faq: var(--color-yellow);
+  --section-contact: var(--color-blue);
+
+  /* Neo brutalist shadow: offset, no blur */
+  --shadow-brutal: 4px 4px 0 var(--color-ink);
+  --shadow-brutal-sm: 3px 3px 0 var(--color-ink);
+  --shadow-brutal-hover: 2px 2px 0 var(--color-ink);
+
+  /* Border */
+  --border-brutal: 2.5px solid var(--color-ink);
+  --border-brutal-thick: 3px solid var(--color-ink);
+
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-dm-mono), "Courier New", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* -----------------------------------------------
+   Base
+----------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+}
+
+/* -----------------------------------------------
+   Typography
+----------------------------------------------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 800;
+}
+
+h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+p {
+  margin: 0;
+  font-family: var(--font-body);
+}
+
+/* -----------------------------------------------
+   Interactive affordances (R-39)
+----------------------------------------------- */
+a[href],
+button,
+summary,
+select,
+label[for],
+[role="button"],
+[role="tab"],
+[role="switch"] {
+  cursor: pointer;
+}
+
+button:disabled,
+a[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Focus indicator: never outline: none without replacement (R-32) */
+:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+/* -----------------------------------------------
+   Neo brutalist button base
+   Square corners, thick border, offset shadow.
+   Hover: shadow collapses, element shifts.
+----------------------------------------------- */
+.btn-brutal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  background-color: var(--color-white);
+  border: var(--border-brutal-thick);
+  border-radius: 0;
+  box-shadow: var(--shadow-brutal);
+  text-decoration: none;
+  transition: box-shadow 120ms ease-out, transform 120ms ease-out;
+  /* Minimum tap target 44px (R-03) */
+  min-height: 44px;
+}
+
+.btn-brutal:hover {
+  box-shadow: var(--shadow-brutal-hover);
+  transform: translate(2px, 2px);
+}
+
+.btn-brutal:active {
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
+
+.btn-brutal--filled {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+}
+
+.btn-brutal--accent {
+  background-color: var(--color-orange);
+  color: var(--color-ink);
+}
+
+/* -----------------------------------------------
+   Card base
+----------------------------------------------- */
+.card-brutal {
+  border: var(--border-brutal);
+  box-shadow: var(--shadow-brutal);
+  background-color: var(--color-cream);
+  transition: box-shadow 120ms ease-out, transform 120ms ease-out;
+}
+
+.card-brutal:hover {
+  box-shadow: var(--shadow-brutal-hover);
+  transform: translate(2px, 2px);
+}
+
+/* -----------------------------------------------
+   Section scaffold
+----------------------------------------------- */
+.section {
+  padding: 6rem 1.5rem;
+}
+
+.section__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* -----------------------------------------------
+   Scroll-reveal entry animation (R-19)
+   Single direction, one easing, no stacking.
+   Disabled under prefers-reduced-motion.
+----------------------------------------------- */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  animation: reveal-up 400ms ease-out forwards;
+}
+
+.reveal.is-visible {
+  /* animation plays via JS IntersectionObserver */
+}
+
+/* -----------------------------------------------
+   Navbar
+----------------------------------------------- */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--color-cream);
+  border-bottom: var(--border-brutal);
+  padding: 0 1.5rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav__logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.nav__links {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav__link {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border: 2px solid transparent;
+  transition: border-color 100ms ease-out, background-color 100ms ease-out;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.nav__link:hover {
+  border-color: var(--color-ink);
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+}
+
+/* Mobile nav toggle */
+.nav__toggle {
+  display: none;
+  background: none;
+  border: var(--border-brutal);
+  padding: 0.4rem 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.nav__mobile-menu {
+  display: none;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  background-color: var(--color-cream);
+  border-bottom: var(--border-brutal);
+  padding: 1rem 1.5rem;
+  z-index: 99;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav__mobile-menu.is-open {
+  display: flex;
+}
+
+.nav__mobile-link {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  text-decoration: none;
+  padding: 0.75rem 0;
+  border-bottom: 1.5px solid var(--color-ink);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* Offset main content by nav height */
+.page-offset {
+  padding-top: 56px;
+}
+
+@media (max-width: 768px) {
+  .nav__links {
+    display: none;
+  }
+
+  .nav__toggle {
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (min-width: 769px) {
+  .nav__toggle {
+    display: none;
+  }
 }
